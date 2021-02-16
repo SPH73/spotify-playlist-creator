@@ -1,6 +1,6 @@
 let accessToken;
 const clientId = process.env.REACT_APP_SPOTIFY_API_KEY;
-const redirectUri = 'http://jam-spot.surge.sh';
+const redirectUri = 'https://jam-spot.surge.sh';
 
 const Spotify = {
     getAccessToken() {
