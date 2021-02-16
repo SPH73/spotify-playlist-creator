@@ -1,11 +1,12 @@
 let accessToken;
-const clientId = process.env.REACT_APP_SPOTIFY_API_KEY
-const redirectUri = 'http://localhost:3000'
+// const clientId = process.env.REACT_APP_SPOTIFY_API_KEY;
+const clientId = 'c9e39f55e1ec4eb6ab4fb98b2fc768b2';
+const redirectUri = 'http://localhost:3000';
 
 const Spotify = {
     getAccessToken() {
         if (accessToken) {
-            return accessToken
+            return accessToken;
         }
         const accessTokenMatch = window.location.href.match(/access_token=([^&]*)/);
         const expiresInMatch = window.location.href.match(/expires_in=([^&]*)/);
@@ -42,7 +43,42 @@ const Spotify = {
                 uri: track.uri
             }));
         })
+    },
+
+    savePlaylist(name, trackUris) {
+        if (!name || !trackUris) {
+            return;
+        }
+        const accessToken = Spotify.getAccessToken();
+        const headers = {
+            Authorization: `Bearer ${accessToken}`
+        };
+        let userId;
+
+        return fetch('https://api.spotify.com/v1/me', {
+            headers: headers
+        }).then(response => response.json()).then(jsonResponse => {
+            userId = jsonResponse.id;
+            return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    name: name
+                })
+            }).then(response => response.json()).then(jsonResponse => {
+                const playlistId = jsonResponse.id;
+                return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        uris: trackUris
+                    })
+                })
+            })
+        })
+
+
     }
 }
 
-export default Spotify
+export default Spotify;
